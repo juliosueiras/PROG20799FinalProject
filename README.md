@@ -14,7 +14,7 @@ Requirement:
   - Trees
   - Graphs
   
-2.Develop an Inventory Management System in C language. The application should be menu
+2. Develop an Inventory Management System in C language. The application should be menu
 driven. The application should be able to perform the following operations:
   - Add new item into the inventory.
   - Edit an existing item, based on Item ID.

@@ -1,4 +1,2 @@
-language: c
-compiler:
-  - clang
-  - gcc
+language: ruby
+install: gem install ceedling

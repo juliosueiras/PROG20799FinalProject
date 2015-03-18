@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  main.c
+ *       Filename:  test_Main.c
  *
  *    Description:
  *
  *        Version:  1.0
- *        Created:  03/18/2015 02:57:05 PM
+ *        Created:  03/18/2015 02:58:26 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -15,19 +15,28 @@
  *
  * =====================================================================================
  */
-#include <stdlib.h>
+#include "unity.h"
 #include <stdio.h>
-#ifdef TEST
-#else
-  //The target will need a main.
-  //Our test runner will provide it's own and call AppMain()
-  int main(void)
-  {
-    return AppMain();
-  }
-#endif // TEST
+#include <stdlib.h>
+#include "main.h"
 
-int AppMain(void){
-    printf("Hello World");
-    return 0;
+#define SIZE 200
+
+char output[BUFSIZ];
+
+void setUp(void){
+
+
+}
+
+void tearDown(void){
+
+
+}
+
+void test_First_test_case(void){
+
+
+    TEST_ASSERT_EQUAL_STRING("Hello World\n", "Hello World\n");
+
 }

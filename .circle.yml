@@ -1,0 +1,9 @@
+language: ruby
+general:
+    build_dir: build
+test: 
+    pre:
+        - mkdir test/support 
+        - mkdir build 
+        - gem install ceedling
+        - rake test:all

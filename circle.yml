@@ -5,7 +5,7 @@ general:
     build_dir: build
 dependencies:
     pre:
-        - cd $CIRCLE_PROJECT_REPONAME && mkdir build
+        - cd ~/$CIRCLE_PROJECT_REPONAME && mkdir build
     override:
         - bundler install
 test: 

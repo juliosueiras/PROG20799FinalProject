@@ -1,4 +1,3 @@
-language: ruby
 general:
     build_dir: build
 test: 

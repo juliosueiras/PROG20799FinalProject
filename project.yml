@@ -9,7 +9,7 @@
   :use_exceptions: FALSE
   :use_test_preprocessor: TRUE
   :use_auxiliary_dependencies: TRUE
-  :build_root: builds
+  :build_root: build
   :release_build: TRUE
   :test_file_prefix: test_
 
@@ -23,8 +23,6 @@
   :executable: .out
 
 :paths:
-  :build:
-    - builds/**
   :test:
     - +:test/**
     - -:test/support

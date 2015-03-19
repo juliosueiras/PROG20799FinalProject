@@ -1,0 +1,128 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'fileutils'
+require 'thor'
+
+def here
+  File.dirname(__FILE__) + "/.."
+end
+
+class CeedlingTasks < Thor
+  include Thor::Actions
+
+  desc "new PROJECT_NAME", "new a new ceedling project"
+  method_option :nodocs, :type => :boolean, :default => false, :desc => "No docs in vendor directory"
+  method_option :as_gem, :type => :boolean, :default => false, :desc => "Create the scaffold using Ceedling as a gem instead of filling in the vendor directory. Implies --no-docs."
+  def new(name, silent = false)
+    ceedling_path     = File.join(name, 'vendor', 'ceedling')
+    source_path       = File.join(name, 'src')
+    test_path         = File.join(name, 'test')
+    test_support_path = File.join(name, 'test/support')
+    build_path        = File.join(name, 'build')
+
+    [source_path, test_path, test_support_path, build_path].each do |d|
+      FileUtils.mkdir_p d
+    end
+
+    unless options[:as_gem]
+      FileUtils.mkdir_p ceedling_path
+
+      unless options[:nodocs]
+        doc_path = File.join(ceedling_path, 'docs')
+        FileUtils.mkdir_p doc_path
+
+        in_doc_path = lambda {|f| File.join(doc_path, f)}
+
+        doc_files = [
+                      'docs/CeedlingPacket.pdf',
+                      'vendor/c_exception/docs/CExceptionSummary.pdf',
+                      'vendor/cmock/docs/CMock Summary.pdf',
+                      'vendor/unity/docs/Unity Summary.pdf',
+                    ]
+
+        doc_files.each do |f|
+          copy_file f, in_doc_path.call(File.basename(f))
+        end
+      end
+
+      folders = %w{plugins lib}
+      folders.map do |f|
+        {:src => f, :dst => File.join(ceedling_path, f)}
+      end.each do |f|
+        directory f[:src], f[:dst]
+      end
+
+      sub_components = [
+        {:src => 'vendor/c_exception/lib/',     :dst => 'vendor/c_exception/lib'},
+        {:src => 'vendor/c_exception/release/', :dst => 'vendor/c_exception/release'},
+        {:src => 'vendor/cmock/config/',        :dst => 'vendor/cmock/config'},
+        {:src => 'vendor/cmock/lib/',           :dst => 'vendor/cmock/lib'},
+        {:src => 'vendor/cmock/release/',       :dst => 'vendor/cmock/release'},
+        {:src => 'vendor/cmock/src/',           :dst => 'vendor/cmock/src'},
+        {:src => 'vendor/constructor/lib/',     :dst => 'vendor/constructor/lib'},
+        {:src => 'vendor/deep_merge/lib/',      :dst => 'vendor/deep_merge/lib'},
+        {:src => 'vendor/diy/lib',              :dst => 'vendor/diy/lib'},
+        {:src => 'vendor/unity/auto/',          :dst => 'vendor/unity/auto'},
+        {:src => 'vendor/unity/release/',       :dst => 'vendor/unity/release'},
+        {:src => 'vendor/unity/src/',           :dst => 'vendor/unity/src'},
+      ]
+
+      sub_components.each do |c|
+        directory c[:src], File.join(ceedling_path, c[:dst])
+      end
+    end
+
+    if options[:as_gem]
+      copy_file File.join('assets', 'project_as_gem.yml'), File.join(name, 'project.yml')
+      copy_file File.join('assets', 'rakefile_as_gem.rb'), File.join(name, 'rakefile.rb')
+    else
+      copy_file File.join('assets', 'project_with_guts.yml'), File.join(name, 'project.yml')
+      copy_file File.join('assets', 'rakefile_with_guts.rb'), File.join(name, 'rakefile.rb')
+    end
+
+    unless silent
+      puts "\n"
+      puts "Project '#{name}' created!"
+      puts " - Tool documentation is located in vendor/ceedling/docs" if (not options[:nodocs]) and (not options[:as_gem])
+      puts " - Execute 'rake -T' to view available test & build tasks"
+      puts ''
+    end
+  end
+
+  desc "examples", "list available example projects"
+  def examples()
+    puts "Available sample projects:"
+    FileUtils.cd(File.join(here, "examples")) do
+      Dir["*"].each {|proj| puts "  #{proj}"}
+    end
+  end
+
+  desc "example PROJ_NAME [DEST]", "new specified example project (in DEST, if specified)"
+  def example(proj_name, dest=nil)
+    if dest.nil? then dest = proj_name end
+
+    invoke :new, [dest, true]
+
+    dest_src      = File.join(dest,'src')
+    dest_test     = File.join(dest,'test')
+    dest_rakefile = File.join(dest,'rakefile.rb')
+    dest_project  = File.join(dest,'project.yml')
+
+    directory "examples/#{proj_name}/src",         dest_src
+    directory "examples/#{proj_name}/test",        dest_test
+    remove_file dest_rakefile
+    remove_file dest_project
+    copy_file "examples/#{proj_name}/rakefile.rb", dest_rakefile
+    copy_file "examples/#{proj_name}/project.yml", dest_project
+
+    puts "\n"
+    puts "Example project '#{proj_name}' created!"
+    puts " - Tool documentation is located in vendor/ceedling/docs"
+    puts " - Execute 'rake -T' to view available test & build tasks"
+    puts ''
+  end
+end
+
+CeedlingTasks.source_root here
+CeedlingTasks.start

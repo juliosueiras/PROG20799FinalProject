@@ -6,7 +6,7 @@ general:
 test: 
     pre:
         - mkdir test/support 
-        - mkdir build 
+        - mkdir builds
         - bundler install
         - gem install ceedling
     override:
@@ -14,4 +14,4 @@ test:
     post: 
         - bundle exec rake gcov:all
         - mkdir $CIRCLE_ARTIFACTS/gcov
-        - cp -rf ./build/gcov $CIRCLE_ARTIFACTS
+        - cp -rf ./builds/gcov $CIRCLE_ARTIFACTS

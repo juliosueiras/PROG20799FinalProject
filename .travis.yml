@@ -1,8 +1,6 @@
 language: ruby
 before_install: 
   - gem install ceedling
-  - mkdir build
-  - mkdir test/support
 before_install:
   - brew update
   - brew install pyenv

@@ -11,7 +11,7 @@ test:
         - gem install ceedling
     override:
         - bundle exec rake test:all
-        - bundle exec rake gcov:all
     post: 
+        - bundle exec rake gcov:all
         - mkdir $CIRCLE_ARTIFACTS/gcov
         - cp -rf build/gcov $CIRCLE_ARTIFACTS

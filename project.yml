@@ -26,7 +26,6 @@
   :build:
     - builds/**
   :test:
-    - +:test_output/**
     - +:test/**
     - -:test/support
   :source:
@@ -44,7 +43,6 @@
   :test:
     - *common_defines
     - TEST
-    - GCOV_BUILD_PATH="test_output/gcov"
   :test_preprocess:
     - *common_defines
     - TEST

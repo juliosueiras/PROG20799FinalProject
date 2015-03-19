@@ -10,8 +10,8 @@ test:
         - bundler install
         - gem install ceedling
     override:
-        - bundle exec rake test:all
+        - rake test:all
     post: 
-        - bundle exec rake gcov:all
+        - rake gcov:all
         - mkdir $CIRCLE_ARTIFACTS/gcov
-        - cp -rf ./builds/gcov $CIRCLE_ARTIFACTS
+        - cp -rf PROG20799FinalProject/builds/gcov $CIRCLE_ARTIFACTS

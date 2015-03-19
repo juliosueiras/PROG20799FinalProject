@@ -6,13 +6,19 @@ general:
 dependencies:
     pre:
         - cd ~/$CIRCLE_PROJECT_REPONAME && mkdir build
-    override:
-        - cd ~/$CIRCLE_PROJECT_REPONAME
-        - bundler install
-        - pip install cpp-coveralls
+        - sudo apt-get install pyenv
+        - eval "$(pyenv init -)"
+        - pyenv install 2.7.6
+        - pyenv global 2.7.6
+        - pyenv rehash
+        - sudo pip install cpp-coveralls
+        - pyenv rehash
         - wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz
         - tar xf lcov_1.11.orig.tar.gz
         - sudo make -C lcov-1.11/ install
+    override:
+        - cd ~/$CIRCLE_PROJECT_REPONAME
+        - bundler install
 test: 
     pre:
         - cd ~/$CIRCLE_PROJECT_REPONAME

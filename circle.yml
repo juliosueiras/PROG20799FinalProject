@@ -1,3 +1,6 @@
+machine:
+  ruby:
+    version: rbx-2.2.6
 general:
     build_dir: build
 test: 
@@ -5,4 +8,5 @@ test:
         - mkdir test/support 
         - mkdir build 
         - gem install ceedling
-        - rake test:all
+    post: 
+        - bundle exec rake test:all

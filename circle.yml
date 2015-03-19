@@ -7,11 +7,30 @@ dependencies:
     pre:
         - cd ~/$CIRCLE_PROJECT_REPONAME && mkdir build
     override:
+        - cd ~/$CIRCLE_PROJECT_REPONAME
         - bundler install
+        - apt-get install pyenv
+        - eval "$(pyenv init -)"
+        - pyenv install 2.7.6
+        - pyenv global 2.7.6
+        - pyenv rehash
+        - pip install cpp-coveralls
+        - pyenv rehash
+        - wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz
+        - tar xf lcov_1.11.orig.tar.gz
+        - sudo make -C lcov-1.11/ install
 test: 
+    pre:
+        - cd ~/$CIRCLE_PROJECT_REPONAME
+        - lcov --directory . --zerocounters
     override:
         - bundler exec rake test:all
     post: 
         - bundler exec rake gcov:all
         - mkdir $CIRCLE_ARTIFACTS/gcov
         - cp -rf ~/$CIRCLE_PROJECT_REPONAME/build/gcov $CIRCLE_ARTIFACTS
+        - cd ~/$CIRCLE_PROJECT_REPONAME
+        - lcov --directory . --capture --output-file coverage.info # capture coverage info
+        - lcov --remove coverage.info 'tests/*' '/usr/*' 'vendor/*' 'runners/*' --output-file coverage.info # filter out system and test code
+        - lcov --list coverage.info # debug before upload
+        - coveralls-lcov --repo-token $COVERALLS_REPO_TOKEN coverage.info # uploads to coveralls

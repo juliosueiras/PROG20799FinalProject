@@ -13,4 +13,5 @@ test:
         - bundle exec rake test:all
         - bundle exec rake gcov:all
     post: 
+        - mkdir $CIRCLE_ARTIFACTS/gcov
         - cp -rf build/gcov $CIRCLE_ARTIFACTS

@@ -23,6 +23,8 @@
   :executable: .out
 
 :paths:
+  :build:
+    - build/**
   :test:
     - +:test/**
     - -:test/support

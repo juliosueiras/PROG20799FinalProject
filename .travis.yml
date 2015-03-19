@@ -1,2 +1,5 @@
 language: ruby
-before_install: gem install ceedling
+before_install: 
+  - gem install ceedling
+  - mkdir build
+  - mkdir test/support

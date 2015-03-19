@@ -5,6 +5,7 @@ general:
     build_dir: build
 test: 
     pre:
+        - mkdir build
         - bundler install
     override:
         - bundler exec rake test:all

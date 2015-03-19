@@ -6,7 +6,6 @@ general:
 test: 
     pre:
         - mkdir build
-        - bundler install
     override:
         - bundler exec rake test:all
     post: 

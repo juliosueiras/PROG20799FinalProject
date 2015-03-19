@@ -1,0 +1,197 @@
+        -:    0:Source:/home/juliosueiras/Documents/Winter2015Class/PROG20799/FinalProject/PROG20799FinalProject/vendor/ceedling/vendor/cmock/src/cmock.c
+        -:    0:Graph:cmock.gcno
+        -:    0:Data:cmock.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/* ==========================================
+        -:    2:    CMock Project - Automatic Mock Generation for C
+        -:    3:    Copyright (c) 2007 Mike Karlesky, Mark VanderVoord, Greg Williams
+        -:    4:    [Released under MIT License. Please refer to license.txt for details]
+        -:    5:========================================== */
+        -:    6:
+        -:    7:#include "unity.h"
+        -:    8:
+        -:    9:#include "cmock_internals.h"
+        -:   10:
+        -:   11://private variables
+        -:   12:#ifdef CMOCK_MEM_DYNAMIC
+        -:   13:static unsigned char*         CMock_Guts_Buffer = NULL;
+        -:   14:static CMOCK_MEM_INDEX_TYPE   CMock_Guts_BufferSize = CMOCK_MEM_ALIGN_SIZE;
+        -:   15:static CMOCK_MEM_INDEX_TYPE   CMock_Guts_FreePtr;
+        -:   16:#else
+        -:   17:static unsigned char          CMock_Guts_Buffer[CMOCK_MEM_SIZE + CMOCK_MEM_ALIGN_SIZE];
+        -:   18:static CMOCK_MEM_INDEX_TYPE   CMock_Guts_BufferSize = CMOCK_MEM_SIZE + CMOCK_MEM_ALIGN_SIZE;
+        -:   19:static CMOCK_MEM_INDEX_TYPE   CMock_Guts_FreePtr;
+        -:   20:#endif
+        -:   21:
+        -:   22://-------------------------------------------------------
+        -:   23:// CMock_Guts_MemNew
+        -:   24://-------------------------------------------------------
+    #####:   25:CMOCK_MEM_INDEX_TYPE CMock_Guts_MemNew(CMOCK_MEM_INDEX_TYPE size)
+        -:   26:{
+        -:   27:  CMOCK_MEM_INDEX_TYPE index;
+        -:   28:
+        -:   29:  //verify arguments valid (we must be allocating space for at least 1 byte, and the existing chain must be in memory somewhere)
+    #####:   30:  if (size < 1)
+    #####:   31:    return CMOCK_GUTS_NONE;
+        -:   32:
+        -:   33:  //verify we have enough room
+    #####:   34:  size = size + CMOCK_MEM_INDEX_SIZE;
+    #####:   35:  if (size & CMOCK_MEM_ALIGN_MASK)
+    #####:   36:    size = (size + CMOCK_MEM_ALIGN_MASK) & ~CMOCK_MEM_ALIGN_MASK;
+    #####:   37:  if ((CMock_Guts_BufferSize - CMock_Guts_FreePtr) < size)
+        -:   38:  {
+        -:   39:#ifdef CMOCK_MEM_DYNAMIC
+        -:   40:    CMock_Guts_BufferSize += CMOCK_MEM_SIZE + size;
+        -:   41:    CMock_Guts_Buffer = realloc(CMock_Guts_Buffer, (size_t)CMock_Guts_BufferSize);
+        -:   42:    if (CMock_Guts_Buffer == NULL)
+        -:   43:#endif //yes that if will continue to the return below if TRUE
+    #####:   44:      return CMOCK_GUTS_NONE;
+        -:   45:  }
+        -:   46:
+        -:   47:  //determine where we're putting this new block, and init its pointer to be the end of the line
+    #####:   48:  index = CMock_Guts_FreePtr + CMOCK_MEM_INDEX_SIZE;
+    #####:   49:  *(CMOCK_MEM_INDEX_TYPE*)(&CMock_Guts_Buffer[CMock_Guts_FreePtr]) = CMOCK_GUTS_NONE;
+    #####:   50:  CMock_Guts_FreePtr += size;
+        -:   51:
+    #####:   52:  return index;
+        -:   53:}
+        -:   54:
+        -:   55://-------------------------------------------------------
+        -:   56:// CMock_Guts_MemChain
+        -:   57://-------------------------------------------------------
+    #####:   58:CMOCK_MEM_INDEX_TYPE CMock_Guts_MemChain(CMOCK_MEM_INDEX_TYPE root_index, CMOCK_MEM_INDEX_TYPE obj_index)
+        -:   59:{
+        -:   60:  CMOCK_MEM_INDEX_TYPE index;
+        -:   61:  void* root;
+        -:   62:  void* obj;
+        -:   63:  void* next;
+        -:   64:
+    #####:   65:  if (root_index == CMOCK_GUTS_NONE)
+        -:   66:  {
+        -:   67:    //if there is no root currently, we return this object as the root of the chain
+    #####:   68:    return obj_index;
+        -:   69:  }
+        -:   70:  else
+        -:   71:  {
+        -:   72:    //reject illegal nodes
+    #####:   73:    if ((root_index < CMOCK_MEM_ALIGN_SIZE) || (root_index >= CMock_Guts_FreePtr))
+        -:   74:    {
+    #####:   75:      return CMOCK_GUTS_NONE;
+        -:   76:    }
+    #####:   77:    if ((obj_index < CMOCK_MEM_ALIGN_SIZE) || (obj_index >= CMock_Guts_FreePtr))
+        -:   78:    {
+    #####:   79:      return CMOCK_GUTS_NONE;
+        -:   80:    }
+        -:   81:
+    #####:   82:    root = (void*)(&CMock_Guts_Buffer[root_index]);
+    #####:   83:    obj  = (void*)(&CMock_Guts_Buffer[obj_index]);
+        -:   84:
+        -:   85:    //find the end of the existing chain and add us
+    #####:   86:    next = root;
+        -:   87:    do {
+    #####:   88:      index = *(CMOCK_MEM_INDEX_TYPE*)((CMOCK_MEM_PTR_AS_INT)next - CMOCK_MEM_INDEX_SIZE);
+    #####:   89:      if (index >= CMock_Guts_FreePtr)
+    #####:   90:        return CMOCK_GUTS_NONE;
+    #####:   91:      if (index > 0)
+    #####:   92:        next = (void*)(&CMock_Guts_Buffer[index]);
+    #####:   93:    } while (index > 0);
+    #####:   94:    *(CMOCK_MEM_INDEX_TYPE*)((CMOCK_MEM_PTR_AS_INT)next - CMOCK_MEM_INDEX_SIZE) = (CMOCK_MEM_INDEX_TYPE)((CMOCK_MEM_PTR_AS_INT)obj - (CMOCK_MEM_PTR_AS_INT)CMock_Guts_Buffer);
+    #####:   95:    return root_index;
+        -:   96:  }
+        -:   97:}
+        -:   98:
+        -:   99://-------------------------------------------------------
+        -:  100:// CMock_Guts_MemNext
+        -:  101://-------------------------------------------------------
+    #####:  102:CMOCK_MEM_INDEX_TYPE CMock_Guts_MemNext(CMOCK_MEM_INDEX_TYPE previous_item_index)
+        -:  103:{
+        -:  104:  CMOCK_MEM_INDEX_TYPE index;
+        -:  105:  void* previous_item;
+        -:  106:
+        -:  107:  //There is nothing "next" if the pointer isn't from our buffer
+    #####:  108:  if ((previous_item_index < CMOCK_MEM_ALIGN_SIZE) || (previous_item_index  >= CMock_Guts_FreePtr))
+    #####:  109:    return CMOCK_GUTS_NONE;
+    #####:  110:  previous_item = (void*)(&CMock_Guts_Buffer[previous_item_index]);
+        -:  111:
+        -:  112:  //if the pointer is good, then use it to look up the next index
+        -:  113:  //(we know the first element always goes in zero, so NEXT must always be > 1)
+    #####:  114:  index = *(CMOCK_MEM_INDEX_TYPE*)((CMOCK_MEM_PTR_AS_INT)previous_item - CMOCK_MEM_INDEX_SIZE);
+    #####:  115:  if ((index > 1) && (index < CMock_Guts_FreePtr))
+    #####:  116:    return index;
+        -:  117:  else
+    #####:  118:    return CMOCK_GUTS_NONE;
+        -:  119:}
+        -:  120:
+        -:  121://-------------------------------------------------------
+        -:  122:// CMock_Guts_MemEndOfChain
+        -:  123://-------------------------------------------------------
+    #####:  124:CMOCK_MEM_INDEX_TYPE CMock_Guts_MemEndOfChain(CMOCK_MEM_INDEX_TYPE root_index)
+        -:  125:{
+    #####:  126:  CMOCK_MEM_INDEX_TYPE index = root_index;
+        -:  127:  CMOCK_MEM_INDEX_TYPE next_index;
+        -:  128:
+    #####:  129:  for (next_index = root_index;
+        -:  130:       next_index != CMOCK_GUTS_NONE;
+    #####:  131:       next_index = CMock_Guts_MemNext(index))
+        -:  132:  {
+    #####:  133:    index = next_index;
+        -:  134:  }
+        -:  135:
+    #####:  136:  return index;
+        -:  137:}
+        -:  138:
+        -:  139://-------------------------------------------------------
+        -:  140:// CMock_GetAddressFor
+        -:  141://-------------------------------------------------------
+    #####:  142:void* CMock_Guts_GetAddressFor(CMOCK_MEM_INDEX_TYPE index)
+        -:  143:{
+    #####:  144:  if ((index >= CMOCK_MEM_ALIGN_SIZE) && (index < CMock_Guts_FreePtr))
+        -:  145:  {
+    #####:  146:    return (void*)(&CMock_Guts_Buffer[index]);
+        -:  147:  }
+        -:  148:  else
+        -:  149:  {
+    #####:  150:    return NULL;
+        -:  151:  }
+        -:  152:}
+        -:  153:
+        -:  154://-------------------------------------------------------
+        -:  155:// CMock_Guts_MemBytesFree
+        -:  156://-------------------------------------------------------
+    #####:  157:CMOCK_MEM_INDEX_TYPE CMock_Guts_MemBytesFree(void)
+        -:  158:{
+    #####:  159:  return CMock_Guts_BufferSize - CMock_Guts_FreePtr;
+        -:  160:}
+        -:  161:
+        -:  162://-------------------------------------------------------
+        -:  163:// CMock_Guts_MemBytesUsed
+        -:  164://-------------------------------------------------------
+    #####:  165:CMOCK_MEM_INDEX_TYPE CMock_Guts_MemBytesUsed(void)
+        -:  166:{
+    #####:  167:  return CMock_Guts_FreePtr - CMOCK_MEM_ALIGN_SIZE;
+        -:  168:}
+        -:  169:
+        -:  170://-------------------------------------------------------
+        -:  171:// CMock_Guts_MemFreeAll
+        -:  172://-------------------------------------------------------
+    #####:  173:void CMock_Guts_MemFreeAll(void)
+        -:  174:{
+    #####:  175:  CMock_Guts_FreePtr = CMOCK_MEM_ALIGN_SIZE; //skip the very beginning
+    #####:  176:}
+        -:  177:
+        -:  178://-------------------------------------------------------
+        -:  179:// CMock_Guts_MemFreeFinal
+        -:  180://-------------------------------------------------------
+    #####:  181:void CMock_Guts_MemFreeFinal(void)
+        -:  182:{
+    #####:  183:  CMock_Guts_FreePtr = CMOCK_MEM_ALIGN_SIZE;
+        -:  184:#ifdef CMOCK_MEM_DYNAMIC
+        -:  185:  if (CMock_Guts_Buffer)
+        -:  186:  {
+        -:  187:    free(CMock_Guts_Buffer);
+        -:  188:    CMock_Guts_Buffer = NULL;
+        -:  189:  }
+        -:  190:#endif
+    #####:  191:}
+        -:  192:

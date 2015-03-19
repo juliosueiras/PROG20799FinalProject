@@ -166,6 +166,51 @@
     :arguments:
     - '"${1}"'
     - -o "${2}"
+  :gcov_compiler:
+    :executable: gcc
+    :arguments:
+    - "-g"
+    - "-fprofile-arcs"
+    - "-ftest-coverage"
+    - -I"$": COLLECTION_PATHS_TEST_SUPPORT_SOURCE_INCLUDE_VENDOR
+    - -I"$": COLLECTION_PATHS_TEST_TOOLCHAIN_INCLUDE
+    - "-D$": COLLECTION_DEFINES_TEST_AND_VENDOR
+    - "-DGCOV_COMPILER"
+    - -c "${1}"
+    - -o "${2}"
+    :name: gcov_compiler
+    :stderr_redirect: :none
+    :background_exec: :none
+    :optional: false
+  :gcov_fixture:
+    :executable: "${1}"
+    :name: gcov_fixture
+    :stderr_redirect: :none
+    :background_exec: :none
+    :optional: false
+  :gcov_linker:
+    :executable: gcc
+    :arguments:
+    - "-fprofile-arcs"
+    - "-ftest-coverage"
+    - "${1}"
+    - "-o ${2}"
+    :name: gcov_linker
+    :stderr_redirect: :none
+    :background_exec: :none
+    :optional: false
+  :gcov_report:
+    :executable: gcov
+    :arguments:
+    - "-n"
+    - "-p"
+    - "-b"
+    - -o "$": GCOV_BUILD_OUTPUT_PATH
+    - '"${1}"'
+    :name: gcov_report
+    :stderr_redirect: :none
+    :background_exec: :none
+    :optional: false
 :test_compiler:
   :arguments: []
 :test_linker:
@@ -193,9 +238,11 @@
   :enabled:
   - stdout_pretty_tests_report
   - module_generator
+  - gcov
   :display_raw_test_results: false
   :stdout_pretty_tests_report_path: vendor/ceedling/plugins/stdout_pretty_tests_report/lib
   :module_generator_path: vendor/ceedling/plugins/module_generator/lib
+  :gcov_path: vendor/ceedling/plugins/gcov
 :module_generator:
   :project_root: "./"
   :source_root: src/

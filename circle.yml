@@ -9,5 +9,8 @@ test:
         - mkdir build 
         - bundler install
         - gem install ceedling
-    post: 
+    override:
         - bundle exec rake test:all
+        - bundle exec rake gcov:all
+    post: 
+        - cp -rf build/gcov $CIRCLE_ARTIFACTS

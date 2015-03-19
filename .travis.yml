@@ -2,8 +2,7 @@ language: ruby
 before_install: 
   - gem install ceedling
 before_install:
-  - brew update
-  - brew install pyenv
+  - apt-get install pyenv
   - eval "$(pyenv init -)"
   - pyenv install 2.7.6
   - pyenv global 2.7.6

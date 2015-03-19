@@ -28,3 +28,8 @@ test:
         - lcov --remove coverage.info 'tests/*' '/usr/*' 'vendor/*' 'runners/*' --output-file coverage.info # filter out system and test code
         - lcov --list coverage.info # debug before upload
         - coveralls-lcov --repo-token $COVERALLS_REPO_TOKEN coverage.info # uploads to coveralls
+notify:
+  webhooks:
+    # A list of hook hashes, containing the url field
+    # gitter hook
+      - url: https://webhooks.gitter.im/e/8f832da58e5aa249c577 

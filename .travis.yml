@@ -1,2 +1,2 @@
 language: ruby
-install: gem install ceedling
+before_install: gem install ceedling

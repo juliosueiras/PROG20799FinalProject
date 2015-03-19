@@ -27,6 +27,8 @@
   - include/**
   :test_toolchain_include: []
   :release_toolchain_include: []
+  :build:
+  - build/**
 :files:
   :test: []
   :source: []
@@ -239,10 +241,16 @@
   - stdout_pretty_tests_report
   - module_generator
   - gcov
+  - stdout_ide_tests_report
+  - teamcity_tests_report
+  - xml_tests_report
   :display_raw_test_results: false
   :stdout_pretty_tests_report_path: vendor/ceedling/plugins/stdout_pretty_tests_report/lib
   :module_generator_path: vendor/ceedling/plugins/module_generator/lib
   :gcov_path: vendor/ceedling/plugins/gcov
+  :stdout_ide_tests_report_path: vendor/ceedling/plugins/stdout_ide_tests_report/lib
+  :teamcity_tests_report_path: vendor/ceedling/plugins/teamcity_tests_report/lib
+  :xml_tests_report_path: vendor/ceedling/plugins/xml_tests_report
 :module_generator:
   :project_root: "./"
   :source_root: src/

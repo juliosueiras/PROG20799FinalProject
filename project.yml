@@ -73,4 +73,7 @@
     - stdout_pretty_tests_report
     - module_generator
     - gcov
+    - stdout_ide_tests_report  
+    - teamcity_tests_report       
+    - xml_tests_report
 ...

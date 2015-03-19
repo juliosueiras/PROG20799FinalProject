@@ -6,12 +6,12 @@ general:
 test: 
     pre:
         - mkdir test/support 
-        - mkdir builds
+        - mkdir build
         - bundler install
         - gem install ceedling
     override:
-        - rake test:all
+        - bundler exec rake test:all
     post: 
-        - rake gcov:all
+        - bundler exec rake gcov:all
         - mkdir $CIRCLE_ARTIFACTS/gcov
         - cp -rf PROG20799FinalProject/builds/gcov $CIRCLE_ARTIFACTS

@@ -3,10 +3,12 @@ machine:
     version: rbx-2.2.6
 general:
     build_dir: build
-test: 
+dependencies:
     pre:
-        - cd $CIRCLE_PROJECT_REPONAME
-        - mkdir build
+        - cd $CIRCLE_PROJECT_REPONAME && mkdir build
+    override:
+        - bundler install
+test: 
     override:
         - bundler exec rake test:all
     post: 

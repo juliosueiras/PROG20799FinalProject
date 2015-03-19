@@ -5,9 +5,11 @@ general:
     build_dir: build
 test: 
     pre:
+        - cd $CIRCLE_PROJECT_REPONAME
         - mkdir build
     override:
         - bundler exec rake test:all
     post: 
         - bundler exec rake gcov:all
         - mkdir $CIRCLE_ARTIFACTS/gcov
+        - cp -rf ~/$CIRCLE_PROJECT_REPONAME/build/gcov $CIRCLE_ARTIFACTS
